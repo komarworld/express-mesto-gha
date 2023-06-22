@@ -74,7 +74,7 @@ const updateUserAvatar = (req, res) => {
     new: true,
     runValidators: true,
   })
-    then((user) => {
+    .then((user) => {
       if (!user) {
         res.status(NOT_FOUND_ERROR).send({message:'Пользователь с указанным _id не найден' })
         return
