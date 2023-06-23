@@ -11,5 +11,4 @@ router.use((req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Страница не найдена' });
 });
 
-
 module.exports = router;
