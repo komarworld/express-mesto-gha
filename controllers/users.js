@@ -63,13 +63,13 @@ const updateUserProfile = (req, res) => {
         res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
         return;
       }
-      res.send(user)
-        .catch((err) => {
-          if (err instanceof mongoose.Error.ValidationError) {
-            return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-          }
-          return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-        });
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
 
