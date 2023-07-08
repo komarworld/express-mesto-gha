@@ -15,8 +15,10 @@ const SALT_ROUNDS = 10;
 const JWT_SECTER = 'super-secret-key';
 
 const getUsers = (req, res, next) => {
+  console.log('hi');
   User.find({})
     .then((users) => {
+      console.log('hihi');
       res.status(STATUS_OK).send({ data: users });
     })
     .catch(next);
