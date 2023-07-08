@@ -1,39 +1,39 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
-const {
-  STATUS_OK, NOT_FOUND_ERROR, CREATED, BAD_REQUEST_ERROR, SERVER_ERROR,
-} = require('../utils/utils');
+const { STATUS_OK, CREATED } = require('../utils/utils');
 
-const getCards = (req, res) => {
+const BadRequestError = require('../errors/bad-request-error'); // 400
+const NotFoundError = require('../errors/not-found-error'); // 404
+const ForbiddenError = require('../errors/forbidden-error'); // 403
+
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(STATUS_OK).send(cards))
-    .catch(() => {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(CREATED).send(card))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные при создании карточки' });
+        return next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       }
       if (card.owner.toString() !== req.user._id) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Нет прав для удаления карточки' });
+        throw new ForbiddenError('Нет прав для удаления карточки');
       }
       return Card.findByIdAndRemove(cardId)
         .then(() => {
@@ -42,13 +42,13 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для удаления карточки' });
+        return next(new BadRequestError('Переданы некорректные данные для удаления карточки'));
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return next(err);
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -57,19 +57,19 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       }
       return res.status(STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        return next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -78,15 +78,15 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       }
       return res.status(STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для удаления лайка' });
+        return next(new BadRequestError('Переданы некорректные данные для удаления лайка'));
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return next(err);
     });
 };
 
