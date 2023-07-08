@@ -15,16 +15,15 @@ const SALT_ROUNDS = 10;
 const JWT_SECTER = 'super-secret-key';
 
 const getUsers = (req, res, next) => {
-  console.log('hi');
   User.find({})
     .then((users) => {
-      console.log('hihi');
       res.status(STATUS_OK).send({ data: users });
     })
     .catch(next);
 };
 
 const getUserById = (req, res, next) => {
+  console.log('hi');
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
@@ -128,7 +127,7 @@ const getUserInfo = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден');
       }
-      res.send(user);
+      res.send({ data: user });
     })
     .catch(next);
 };

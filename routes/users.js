@@ -10,9 +10,9 @@ const {
 
 const regUrl = /(https?:\/\/)(www)?([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=])*#?$/;
 
-router.get('/', getUsers);
-
 router.get('/me', getUserInfo);
+
+router.get('/', getUsers);
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
