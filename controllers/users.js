@@ -15,6 +15,7 @@ const SALT_ROUNDS = 10;
 const JWT_SECTER = 'super-secret-key';
 
 const getUsers = (req, res, next) => {
+  console.log('hi');
   User.find({})
     .then((users) => {
       res.status(STATUS_OK).send({ data: users });
@@ -23,7 +24,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  console.log('hi');
+  console.log('hihi');
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
@@ -122,12 +123,13 @@ const login = (req, res, next) => {
 };
 
 const getUserInfo = (req, res, next) => {
+  console.log('wow');
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден');
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch(next);
 };
