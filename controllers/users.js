@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequestError = require('../errors/bad-request-error'); // 400
 const NotFoundError = require('../errors/not-found-error'); // 404
-const ConflictError = require('../errors/bad-request-error'); // 409
+const ConflictError = require('../errors/conflict-error'); // 409
 
 const {
   STATUS_OK,
@@ -17,7 +17,7 @@ const JWT_SECTER = 'super-secret-key';
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
-      res.status(STATUS_OK).send(users);
+      res.status(STATUS_OK).send({ data: users });
     })
     .catch(next);
 };
@@ -29,7 +29,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден');
       }
-      res.status(STATUS_OK).send(user);
+      res.status(STATUS_OK).send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
@@ -55,11 +55,11 @@ const createUser = (req, res, next) => {
           });
         })
         .catch((err) => {
-          if (err.code === 11000) {
-            return next(new ConflictError('Пользователь с таким email уже существует'));
-          }
           if (err instanceof mongoose.Error.ValidationError) {
             return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+          }
+          if (err.code === 11000) {
+            return next(new ConflictError('Пользователь с таким email уже существует'));
           }
           return next(err);
         });
@@ -78,7 +78,7 @@ const updateUserProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден');
       }
-      res.send(user);
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -100,7 +100,7 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден');
       }
-      res.send(user);
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
