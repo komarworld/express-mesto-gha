@@ -35,7 +35,7 @@ const deleteCard = (req, res, next) => {
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Нет прав для удаления карточки');
       }
-      return Card.findByIdAndRemove(cardId)
+      return Card.deleteOne(card)
         .then(() => {
           res.send({ data: card });
         });
